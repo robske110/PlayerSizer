@@ -1,8 +1,8 @@
 name: PlayerSizer
-version: 1.1.1
-author: Matthww
-api: [3.0.0-ALPHA1, 3.0.0-ALPHA2, 3.0.0-ALPHA3, 3.0.0-ALPHA4, 3.0.0-ALPHA5]
-description: Shows info about a certain player!
+version: 1.2.0
+author: [Matthww, robske_110]
+api: [3.0.0-ALPHA7, 3.0.0-ALPHA8, 3.0.0-ALPHA9]
+description: Resizes a certain player.
 main: Matthww\PlayerSizer\PlayerSizer
 
 commands:
@@ -17,7 +17,7 @@ permissions:
     children:
       playersizer.use:
         default: op
-        description: "Allows the user to run the size command!"
+        description: "Allows the user to run the size command and resize himself"
       playersizer.other:
         default: op
-        description: "Allows the user to resize other players!"
+        description: "Allows the user to resize other players"

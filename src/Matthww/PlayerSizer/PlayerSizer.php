@@ -2,68 +2,61 @@
 
 namespace Matthww\PlayerSizer;
 
-use Matthww\PlayerInfo\Utils\SpoonDetector;
+use pocketmine\utils\TextFormat as TF;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 
+class PlayerSizer extends PluginBase implements Listener{
+	const MAX_SIZE = 20;
 
-class PlayerSizer extends PluginBase implements Listener {
+	public function onEnable(){
+		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+	}
 
-    protected $target;
-    protected $scale;
-
-    public function onEnable() {
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getLogger()->notice("is enabled");
-        SpoonDetector::printSpoon($this, 'spoon.txt');
-    }
-
-    public function onDisable() {
-        $this->getLogger()->notice("is disabled!");
-    }
-
-    public function onCommand(CommandSender $sender, Command $command, $label, array $args) {
-        if (strtolower($command->getName()) == "size") {
-            if ($sender->hasPermission("playersizer.other")) {
-                if (isset($args[0]) and (isset($args[1]))) {
-                    if ($this->getServer()->getPlayer($args[0])) {
-                        if ($args[1])
-                            $this->target = $this->getServer()->getPlayer($args[0]);
-                        $this->scale = $args[1];
-                        if ($this->scale <= 20) {
-                            $this->target->setScale($this->scale);
-                            $sender->sendMessage("§6Resized §f" . $this->target->getDisplayName() . " §6to §e" . $this->scale);
-                            return true;
-                        } else {
-                            $sender->sendMessage("§cThe maximum size is §e20§c!");
-                        }
-                    } else {
-                        $sender->sendMessage("§c[Error] Player not found");
-                    }
-                } else {
-                    if (!isset($args[0])) {
-                        return false;
-                    }
-                }
-            }
-            if ($sender->hasPermission("playersizer.use")) {
-                if (is_numeric($args[0])) {
-                    if ($sender instanceof Player) {
-                        $sender->setScale($args[0]);
-                        $sender->sendMessage("§6Resized to §e" . $args[0]);
-                        return true;
-                    } else {
-                        $sender->sendMessage("§c[Error] Please specify a player");
-                    }
-                } else {
-                    $sender->sendMessage("§cYou need to type in a number!");
-                }
-            }
-        }
-        return true;
-    }
+	public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
+		if(strtolower($command->getName()) == "size"){
+			if(isset($args[0])){
+				if(isset($args[0]) && isset($args[1])){
+					if($sender->hasPermission("playersizer.other")){
+						if(is_numeric($args[1])){
+							if(($player = $this->getServer()->getPlayer($args[0])) instanceof Player){
+								if($args[1] <= self::MAX_SIZE){
+									$player->setScale($args[1]);
+									$sender->sendMessage(TF::GOLD."Resized ".TF::WHITE.$player->getDisplayName().TF::GOLD." to ".TF::YELLOW.$args[1]);
+									return true;
+								}else{
+									$sender->sendMessage(TF::RED."The maximum size is ".TF::YELLOW.self::MAX_SIZE.TF::RED."!");
+								}
+							}else{
+								$sender->sendMessage(TF::RED."Player '".$args[1]."' not found");
+							}
+						}
+					}else{
+						$sender->sendMessage(TF::RED."You have no permission to set the size of other players!");
+					}
+				}else{
+					if($sender->hasPermission("playersize.use")){
+						if($sender instanceof Player){
+							if(is_numeric($args[0])){
+								if($args[1] <= self::MAX_SIZE){
+									$sender->setScale($args[0]);
+									$sender->sendMessage(TF::GOLD."Resized to ".TF::YELLOW.$args[0]);
+								}else{
+									$sender->sendMessage(TF::RED."The maximum size is ".TF::YELLOW.self::MAX_SIZE.TF::RED."!");
+								}
+							}
+						}
+					}else{
+						$sender->sendMessage(TF::RED."You have no permission to set the size of yourself!");
+					}
+				}
+			}else{
+				return false;
+			}
+		}
+		return true;
+	}
 }
-
